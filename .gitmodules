@@ -1,0 +1,12 @@
+[submodule "pure"]
+	path = pure
+	url = https://github.com/sindresorhus/pure.git
+[submodule "zsh-completions"]
+	path = zsh-completions
+	url = https://github.com/zsh-users/zsh-completions.git
+[submodule "zsh-sage"]
+	path = zsh-sage
+	url = https://github.com/UtsavMandal2022/zsh-sage.git
+[submodule "zsh-vi-mode"]
+	path = zsh-vi-mode
+	url = https://github.com/jeffreytse/zsh-vi-mode

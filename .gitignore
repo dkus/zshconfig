@@ -1,0 +1,15 @@
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Local runtime/history/cache files
+.zsh_history
+.zhistory
+.zcompdump
+.zcompdump-*
+.zcompcache/
+.zsh_sessions/
+
+# Local DB/cache produced by plugins
+.zsh-sage/
