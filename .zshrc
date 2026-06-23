@@ -33,54 +33,23 @@ ZVM_INIT_MODE=sourcing
 # Start each command line in insert mode.
 ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
 
-# Tab behavior with zsh-sage:
-# - Tab: accept full suggestion, else normal completion
-# - Shift+Tab: accept next word, else reverse completion
-# Define custom widget for Tab behavior.
-function _user_sage_tab_accept_or_complete() {
-  # If ghost suggestion exists, accept full suggestion.
-  if [[ -n "$POSTDISPLAY" ]]; then
-    zle forward-char
-  else
-    # Otherwise run normal completion.
-    zle expand-or-complete
-  fi
-}
-
-# Define custom widget for Shift+Tab behavior.
-function _user_sage_shtab_accept_word_or_reverse_complete() {
-  # If ghost suggestion exists, accept one word from suggestion.
-  if [[ -n "$POSTDISPLAY" ]]; then
-    zle forward-word
-  # If no suggestion, try reverse completion menu navigation.
-  elif (( ${+widgets[reverse-menu-complete]} )); then
-    zle reverse-menu-complete
-  else
-    # Fallback to standard completion when reverse menu widget is unavailable.
-    zle expand-or-complete
-  fi
-}
-
 # Apply custom keybindings after zsh-vi-mode initializes keymaps.
+# Sage and completion keys use Ctrl chords for portability (Mac, Linux, WSL).
+# Tab always runs zsh completion; sage accept uses dedicated Ctrl bindings.
 function zvm_after_init() {
-  # Register custom Tab widget with ZLE.
-  zle -N _user_sage_tab_accept_or_complete
-  # Register custom Shift+Tab widget with ZLE.
-  zle -N _user_sage_shtab_accept_word_or_reverse_complete
+  # zsh-sage (vi insert mode)
+  bindkey -M viins '^O' forward-char    # Ctrl+O — accept full suggestion
+  bindkey -M viins '^T' forward-word    # Ctrl+T — accept one word of suggestion
+  bindkey -M viins '^N' sage-cycle      # Ctrl+N — cycle alternative suggestions
+  bindkey -M viins '^G' sage-dismiss    # Ctrl+G — dismiss ghost text
 
-  # Keep zsh-sage cycling in insert mode.
-  # Ctrl+N cycles zsh-sage candidates.
-  bindkey -M viins '^N' sage-cycle
-  # Ctrl+F opens fuzzy completion picker.
-  bindkey -M viins '^F' pick-completion
+  # Fuzzy completion picker (completion.zsh)
+  bindkey -M viins '^F' pick-completion # Ctrl+F — fuzzy history/files/commands
 
-  # Tab / Shift+Tab accept behavior for zsh-sage.
-  # Tab key.
-  bindkey -M viins '^I' _user_sage_tab_accept_or_complete
-  # Common Shift+Tab sequence.
-  bindkey -M viins '^[[Z' _user_sage_shtab_accept_word_or_reverse_complete
-  # Alternate Shift+Tab sequence used by some terminals.
-  bindkey -M viins '^[[1;2Z' _user_sage_shtab_accept_word_or_reverse_complete
+  # Standard zsh completion (sage re-suggests via its expand-or-complete wrapper)
+  bindkey -M viins '^I' expand-or-complete
+  bindkey -M viins '^[[Z' reverse-menu-complete
+  bindkey -M viins '^[[1;2Z' reverse-menu-complete
 }
 # Load zsh-vi-mode plugin after zsh-sage so we can rebind keys in zvm_after_init.
 [[ -r "$DOTCONFIG/zsh/zsh-vi-mode/zsh-vi-mode.plugin.zsh" ]] && source "$DOTCONFIG/zsh/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
